@@ -13,7 +13,7 @@ python revshellgen.py --help
 optional arguments:
   -h, --help            show this help message and exit
   -i IPADDR, --ipaddr IPADDR
-                        IP address to connect back to
+                        IP address or interface to connect back to 
   -p PORT, --port PORT  Port to connect back to
   -t SHELL_TYPE, --type SHELL_TYPE
                         Type of reverse shell to generate
