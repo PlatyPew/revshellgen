@@ -30,6 +30,11 @@ def parse_options():
                         action="store_true",
                         help="List available shell types",
                         dest='shell_list')
+    parser.add_argument("-L",
+                        "--listen",
+                        action="store_true",
+                        help="Start a listener",
+                        dest="shell_listen")
     args = parser.parse_args()
 
     if (args.shell_type == None) ^ args.shell_list:
@@ -513,6 +518,17 @@ def copy_clipboard(contents: str) -> None:
     subprocess.run(f"printf '\\e]52;c;{contents}\007'", shell=True)
 
 
+def run_listener(command: str) -> None:
+    try:
+        process = subprocess.Popen(command, shell=True)
+        process.wait()
+    except KeyboardInterrupt:
+        pass
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
+
+
 def main(args: argparse.Namespace) -> None:
     if args.shell_list:
         print("[+] List of shells")
@@ -545,6 +561,10 @@ def main(args: argparse.Namespace) -> None:
     # Listener
     print("\n[*] Start listener")
     print(shell["listen"])
+
+    if args.shell_listen:
+        print(f"\n[+] Listening on {port}")
+        run_listener(shell["listen"])
 
 
 if __name__ == "__main__":
