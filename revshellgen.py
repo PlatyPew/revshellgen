@@ -7,6 +7,7 @@ from struct import pack
 import argparse
 import re
 import socket
+import subprocess
 import sys
 
 
@@ -507,6 +508,11 @@ def get_shell(ipaddr: str, port: int) -> dict:
     return shells
 
 
+def copy_clipboard(contents: str) -> None:
+    contents = b64encode(contents.encode()).decode()
+    subprocess.run(f"printf '\\e]52;c;{contents}\007'", shell=True)
+
+
 def main(args: argparse.Namespace) -> None:
     if args.shell_list:
         print("[+] List of shells")
@@ -527,10 +533,17 @@ def main(args: argparse.Namespace) -> None:
 
     shell = shells[args.shell_type]
 
-    print("[+] Generate reverse shell")
+    # Reverse shell
+    print("[*] Generated reverse shell")
+
+    if shell['type'] == 1:
+        copy_clipboard(shell['reverse'])
+        print("[+] Copied to clipboard")
+
     print(shell['reverse'])
 
-    print("\n[+] Start listener")
+    # Listener
+    print("\n[*] Start listener")
     print(shell["listen"])
 
 
