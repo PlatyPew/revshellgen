@@ -42,6 +42,10 @@ def get_ip(ip_iface: str) -> str:
         return ip_iface
 
     # Get ip address from interface
+    if sys.platform != "linux":
+        print("Inteface only supported on Linux", file=sys.stderr)
+        sys.exit(1)
+
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         ip_iface = socket.inet_ntoa(
