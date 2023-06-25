@@ -384,7 +384,13 @@ def main(args: argparse.Namespace) -> None:
     ipaddr = get_ip(args.ipaddr)
     port = args.port
 
-    print(get_shell(ipaddr, port)[args.shell_type]['reverse'])
+    shell = get_shell(ipaddr, port)[args.shell_type]
+
+    print("[+] Generate reverse shell")
+    print(shell['reverse'])
+
+    print("\n[+] Start listener")
+    print(shell["listen"])
 
 
 if __name__ == "__main__":
