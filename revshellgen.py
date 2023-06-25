@@ -26,20 +26,11 @@ def parse_options():
                         help="Type of reverse shell to generate",
                         dest='shell_type',
                         required=True)
-    parser.add_argument("-li",
-                        "--listen",
-                        action="store_true",
-                        help='Open a socket and listen for a shell')
-    parser.add_argument("-ls",
+    parser.add_argument("-l",
                         "--list",
                         action="store_true",
                         help="List available shell types",
                         dest='shell_list')
-    parser.add_argument("-a",
-                        "--all",
-                        action="store_true",
-                        help="Generate all the shells!",
-                        dest='all_shells')
     args = parser.parse_args()
 
     return args
@@ -185,38 +176,6 @@ def main(args):
     if args.shell_list:
         print("\n[+] Available shell types:\n")
         print(shells.keys())
-
-    if args.all_shells:
-        print("\n[+]Reverse shell commands:\n")
-        for t, shell in shells.items():
-            print("{}\n".format(shell))
-
-    if args.listen:
-        null = 'echo ""'.encode()
-        print("\n[+] Listening.\n")
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        s.bind(('0.0.0.0', args.port))
-        s.listen(5)
-        conn, addr = s.accept()
-        print("Connection from {}".format(addr))
-        while True:
-            data = conn.recv(1024).decode()
-            if not data:
-                break
-            sys.stdout.write(str(data))
-            command = sys.stdin.readline()
-            if 'exit' in command:
-                conn.close()
-                sys.exit()
-            if 'clear' in command:
-                conn.send(command.encode())
-                conn.send(null)
-            if 'export' in command:
-                conn.send(command.encode())
-                conn.send(null)
-            conn.send(command.encode())
-            time.sleep(0.1)
 
 
 if __name__ == "__main__":
