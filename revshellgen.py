@@ -2,6 +2,7 @@
 
 from base64 import b64encode
 from fcntl import ioctl
+from os import getcwd
 from struct import pack
 
 import argparse
@@ -518,6 +519,11 @@ def copy_clipboard(contents: str) -> None:
     subprocess.run(f"printf '\\e]52;c;{contents}\007'", shell=True)
 
 
+def generate_msf(command: str) -> str:
+    subprocess.run(command, shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    return command.split(" -o ")[1]
+
+
 def run_listener(command: str) -> None:
     try:
         process = subprocess.Popen(command, shell=True)
@@ -554,7 +560,12 @@ def main(args: argparse.Namespace) -> None:
 
     if shell['type'] == 1:
         copy_clipboard(shell['reverse'])
-        print("[+] Copied to clipboard")
+        print("[+] Contents copied to clipboard")
+    elif shell['type'] == 2:
+        path = generate_msf(shell['reverse'])
+        path = f"{getcwd()}/{path}"
+        copy_clipboard(path)
+        print(f"[+] Path {path} copied to clipboard")
 
     print(shell['reverse'])
 
