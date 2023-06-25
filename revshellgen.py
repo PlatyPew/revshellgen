@@ -61,11 +61,11 @@ def get_ip(ip_iface: str) -> str:
 
     # If all checks fail, check if non-linux user using interface
     if sys.platform != "linux":
-        print("Inteface only supported on Linux", file=sys.stderr)
+        print("[!] Inteface only supported on Linux", file=sys.stderr)
         sys.exit(1)
 
     # If is linux, it is invalid input
-    print("Invalid interface or domain", file=sys.stderr)
+    print("[!] Invalid interface or domain", file=sys.stderr)
 
 
 def get_shell(ipaddr: str, port: int) -> dict:
@@ -519,7 +519,13 @@ def main(args: argparse.Namespace) -> None:
     ipaddr = get_ip(args.ipaddr)
     port = args.port
 
-    shell = get_shell(ipaddr, port)[args.shell_type]
+    shells = get_shell(ipaddr, port)
+
+    if args.shell_type not in shells:
+        print("[!] Shell type not available", file=sys.stderr)
+        sys.exit(1)
+
+    shell = shells[args.shell_type]
 
     print("[+] Generate reverse shell")
     print(shell['reverse'])
