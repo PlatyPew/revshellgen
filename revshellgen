@@ -87,6 +87,7 @@ def get_ip(ip_iface: str) -> str:
 
     # If is linux, it is invalid input
     print("[!] Invalid interface or domain", file=sys.stderr)
+    sys.exit(1)
 
 
 def get_shell(ipaddr: str, port: int) -> dict:
