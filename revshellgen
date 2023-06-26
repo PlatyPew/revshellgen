@@ -523,6 +523,11 @@ def get_shell(ipaddr: str, port: int) -> dict:
 
 
 def copy_clipboard(contents: str) -> None:
+    if which("xclip"):
+        proc = subprocess.Popen(['xclip', '-selection', 'clipboard'], stdin=subprocess.PIPE)
+        proc.communicate(input=contents.encode())
+        return
+
     contents = b64encode(contents.encode()).decode()
     subprocess.run(f"printf '\\e]52;c;{contents}\007'", shell=True)
 
