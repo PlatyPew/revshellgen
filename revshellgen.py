@@ -351,7 +351,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "type":
         "py",
         "platform":
-        "Linux",
+        "Windows",
     }
 
     ruby = {
