@@ -4,6 +4,7 @@ from base64 import b64encode
 from fcntl import ioctl
 from os import getcwd, path
 from random import randint
+from shutil import which
 from struct import pack
 
 import argparse
@@ -587,7 +588,7 @@ def main(args: argparse.Namespace) -> None:
     shell = shells[args.shell_type]
 
     # Reverse shell
-    print("[*] Generated reverse shell")
+    print("[*] Generate reverse shell")
 
     file_path = ""
     if shell['type'] == 1:
@@ -615,7 +616,7 @@ def main(args: argparse.Namespace) -> None:
     if shell['type'] != 1 and args.shell_serve:
         serve_port = randint(8000, 9000)
 
-        print(f"\n[+] Web server serving on {serve_port}")
+        print(f"\n[+] Reverse shell served on {serve_port}")
 
         # Horrible mess that prints and copies the command to get the file
         if shell['platform'] == "Linux":
