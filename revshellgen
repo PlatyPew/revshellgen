@@ -6,6 +6,7 @@ from os import getcwd, path
 from random import randint
 from shutil import which
 from struct import pack
+from urllib import parse
 
 import argparse
 import http.server
@@ -17,8 +18,7 @@ import sys
 
 
 def parse_options():
-    parser = argparse.ArgumentParser(
-        description="revshellgen -i 127.0.0.1 -p 4444 -t bash")
+    parser = argparse.ArgumentParser(description="revshellgen -i 127.0.0.1 -p 4444 -t bash")
     parser.add_argument("-i",
                         "--ipaddr",
                         type=str,
@@ -30,6 +30,11 @@ def parse_options():
                         type=str,
                         help="Type of reverse shell to generate",
                         dest='shell_type')
+    parser.add_argument("-e",
+                        "--encode",
+                        type=str,
+                        help="Encode reverse shell",
+                        choices=["base64", "url"])
     parser.add_argument("-l",
                         "--list",
                         action="store_true",
@@ -572,6 +577,16 @@ def run_listener(command: str) -> None:
         sys.exit(1)
 
 
+def encode_reverse(command: str, encoder: str) -> str:
+    if encoder == "base64":
+        return b64encode(command.encode()).decode()
+
+    if encoder == "url":
+        return parse.quote(command, safe='')
+
+    return command
+
+
 def main(args: argparse.Namespace) -> None:
     if args.shell_list:
         print("[+] List of shells")
@@ -615,7 +630,7 @@ def main(args: argparse.Namespace) -> None:
         copy_clipboard(file_path)
         print(f"[+] Path {file_path} copied to clipboard")
 
-    print(shell['reverse'])
+    print(encode_reverse(shell['reverse'], args.encode))
 
     # Serve file on web
     if shell['type'] != 1 and args.shell_serve:

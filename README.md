@@ -6,7 +6,8 @@ This is a fork of @cwinfosec revshellgen
 ## Usage
 
 ```
-usage: revshellgen [-h] [-i IPADDR] [-p PORT] [-t SHELL_TYPE] [-l] [-L] [-s]
+usage: revshellgen [-h] [-i IPADDR] [-p PORT] [-t SHELL_TYPE] [-e {base64,url}] [-l] [-L]
+                   [-s]
 
 revshellgen -i 127.0.0.1 -p 4444 -t bash
 
@@ -17,6 +18,8 @@ options:
   -p PORT, --port PORT  Port to connect back to
   -t SHELL_TYPE, --type SHELL_TYPE
                         Type of reverse shell to generate
+  -e {base64,url}, --encode {base64,url}
+                        Encode reverse shell
   -l, --list            List available shell types
   -L, --listen          Start a listener
   -s, --serve           Serve reverse shell
