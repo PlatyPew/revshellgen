@@ -632,7 +632,11 @@ def main(args: argparse.Namespace) -> None:
             copy_clipboard(file_path)
             print(f"[+] Path {file_path} copied to clipboard")
 
-    print(encode_reverse(shell['reverse'], args.encode))
+    if args.encode:
+        shell['reverse'] = encode_reverse(shell['reverse'], args.encode)
+        copy_clipboard(shell['reverse'])
+
+    print(shell['reverse'])
 
     # Serve file on web
     if shell['type'] == 1 and args.shell_serve:
