@@ -635,7 +635,7 @@ def main(args: argparse.Namespace) -> None:
     print(encode_reverse(shell['reverse'], args.encode))
 
     # Serve file on web
-    if shell['type'] != 1 and args.shell_serve:
+    if shell['type'] == 1 and args.shell_serve:
         print(f"\n[!] File served not supported for this reverse shell")
 
     if shell['type'] != 1 and args.shell_serve:
