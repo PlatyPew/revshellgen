@@ -50,6 +50,12 @@ def parse_options():
                         action="store_true",
                         help="Serve reverse shell",
                         dest="shell_serve")
+    parser.add_argument("-P",
+                        "--serve-port",
+                        type=int,
+                        default=randint(8000, 9000),
+                        help="Serve reverse shell on specific port",
+                        dest="shell_serve_port")
     args = parser.parse_args()
 
     if (args.shell_type == None) ^ args.shell_list:
@@ -643,7 +649,7 @@ def main(args: argparse.Namespace) -> None:
         print(f"\n[!] File served not supported for this reverse shell")
 
     if shell['type'] != 1 and args.shell_serve:
-        serve_port = randint(8000, 9000)
+        serve_port = args.shell_serve_port
 
         print(f"\n[+] Reverse shell served on {serve_port}")
 
